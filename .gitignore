@@ -1,3 +1,2 @@
-infraestrutura/computeengine/.terraform/
-infraestrutura/gke/.terraform/
+.terraform/
 
