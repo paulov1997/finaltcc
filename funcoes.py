@@ -7,10 +7,10 @@ import shutil
 if sys.platform.startswith("linux"):
     import distro  # Pacote para identificar a distribuição Linux
 
-from google.cloud import resourcemanager_v3
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from google.auth.exceptions import DefaultCredentialsError
+#from google.cloud import resourcemanager_v3
+#from googleapiclient.discovery import build
+#from googleapiclient.errors import HttpError
+#from google.auth.exceptions import DefaultCredentialsError
 
 
 def instalar_pre_requisitos():
@@ -123,6 +123,13 @@ def instalar_pre_requisitos():
             print(f"Pacote {package} não encontrado. Instalando...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
             print(f"Pacote {package} instalado com sucesso.")
+
+                # Agora podemos importar com segurança
+    global resourcemanager_v3, build, HttpError, DefaultCredentialsError
+    from google.cloud import resourcemanager_v3
+    from googleapiclient.discovery import build
+    from googleapiclient.errors import HttpError
+    from google.auth.exceptions import DefaultCredentialsError
 
     print("Todos os pré-requisitos foram instalados com sucesso.")
 
