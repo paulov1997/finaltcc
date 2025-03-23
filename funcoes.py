@@ -4,7 +4,9 @@ import os
 import json
 import platform
 import shutil
-import distro  # Pacote para identificar a distribuição Linux
+if sys.platform.startswith("linux"):
+    import distro  # Pacote para identificar a distribuição Linux
+
 from google.cloud import resourcemanager_v3
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
