@@ -4,8 +4,7 @@ import os
 import json
 import platform
 import shutil
-if sys.platform.startswith("linux"):
-    import distro  # Pacote para identificar a distribuição Linux
+import distro 
 
 #from google.cloud import resourcemanager_v3
 #from googleapiclient.discovery import build
@@ -36,13 +35,7 @@ def instalar_pre_requisitos():
             else:
                 print(f"Sistema Linux {distro_name} não suportado para instalação automática do PIP.")
                 sys.exit(1)
-        elif os_name == 'Windows':
-            print("Sistema Windows detectado. Instalando PIP com o Python...")
-            subprocess.check_call([sys.executable, "-m", "ensurepip", "--upgrade"])
-            print("PIP instalado com sucesso em sistemas Windows.")
-        else:
-            print(f"Sistema operacional {os_name} não suportado para instalação do PIP.")
-            sys.exit(1)
+
 
     # Verifica se o Cloud CLI (gcloud) está instalado
     print("Verificando se o Cloud CLI (gcloud) está instalado...")
@@ -86,26 +79,7 @@ def instalar_pre_requisitos():
                 print(f"Sistema Linux {distro_name} não suportado para instalação automática do Cloud CLI.")
                 sys.exit(1)
 
-        elif os_name == 'Windows':
-            print("Sistema Windows detectado. Instalando Cloud CLI com o instalador...")
-            try:
-                # Comando para baixar e executar o instalador do gcloud no Windows
-                subprocess.check_call([
-                    "powershell",
-                    "(New-Object Net.WebClient).DownloadFile(\"https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe\", \"$env:Temp\\GoogleCloudSDKInstaller.exe\")"
-                ])
-                subprocess.check_call([
-                    "powershell",
-                    "& $env:Temp\\GoogleCloudSDKInstaller.exe"
-                ])
-                print("Cloud CLI (gcloud) instalado com sucesso em sistemas Windows.")
-            except subprocess.CalledProcessError as e:
-                print(f"Falha ao instalar o Cloud CLI (gcloud) em sistemas Windows. Erro: {e}")
-                sys.exit(1)
-        else:
-            print(f"Sistema operacional {os_name} não suportado para instalação do Cloud CLI.")
-            sys.exit(1)
-
+        
     # Lista de pacotes Python necessários
     required_packages = {
         'google-cloud-resource-manager': 'google.cloud',
