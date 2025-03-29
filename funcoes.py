@@ -4,7 +4,8 @@ import os
 import json
 import platform
 import shutil
-import distro 
+if sys.platform.startswith("linux"):
+    import distro  # Pacote para identificar a distribuição Linux
 
 #from google.cloud import resourcemanager_v3
 #from googleapiclient.discovery import build
@@ -27,7 +28,7 @@ def instalar_pre_requisitos():
 
         if os_name == 'Linux':
             distro_name = distro.id()
-            if distro_name in ['debian', 'ubuntu', 'linuxmint', 'mxlinux', 'devuan', 'deepin', 'elementary', 'zorin', 'pop']:
+            if distro_name in ['debian', 'ubuntu', 'linuxmint', 'mxlinux', 'devuan', 'deepin', 'elementary', 'zorin', 'pop','kali']:
                 print("Sistema Debian-based detectado. Instalando PIP com apt...")
                 subprocess.check_call(['sudo', 'apt', 'update'])
                 subprocess.check_call(['sudo', 'apt', 'install', 'python3-pip', '-y'])
@@ -48,7 +49,7 @@ def instalar_pre_requisitos():
 
         if os_name == 'Linux':
             distro_name = distro.id()
-            if distro_name in ['debian', 'ubuntu', 'linuxmint', 'mxlinux', 'devuan', 'deepin', 'elementary', 'zorin', 'pop']:
+            if distro_name in ['debian', 'ubuntu', 'linuxmint', 'mxlinux', 'devuan', 'deepin', 'elementary', 'zorin', 'pop','kali']:
                 print("Sistema Debian-based detectado. Instalando Cloud CLI com apt...")
                 try:
                     # Atualizar repositórios e instalar dependências
