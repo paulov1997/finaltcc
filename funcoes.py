@@ -54,31 +54,50 @@ def instalar_pre_requisitos():
             print(f"Instalação automática do gcloud não suportada para {os_name}.")
             sys.exit(1)
 
-    # Verifica e instala o Terraform
-    print("Verificando se o Terraform está instalado...")
+    # 3. Verificar e instalar Terraform
+    print("Verificando se o Terraform está instalado...", flush=True)
     if shutil.which("terraform"):
-        print("Terraform já está instalado.")
+        print("Terraform já está instalado.", flush=True)
     else:
         if os_name == 'Linux':
-            print("Instalando Terraform no Linux...")
+            print("Instalando Terraform com apt...", flush=True)
             try:
                 subprocess.check_call(['sudo', 'apt-get', 'update'])
                 subprocess.check_call(['sudo', 'apt-get', 'install', '-y', 'software-properties-common', 'gnupg', 'curl'])
-                subprocess.check_call(['curl', '-fsSL', 'https://apt.releases.hashicorp.com/gpg', '|', 'sudo', 'gpg', '--dearmor', '-o', '/usr/share/keyrings/hashicorp-archive-keyring.gpg'])
+
+                # Instalar chave GPG do HashiCorp
+                subprocess.check_call(
+                    'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg',
+                    shell=True
+                )
+
+                # Detectar codename ou forçar 'jammy'
+                try:
+                    codename = subprocess.check_output("lsb_release -cs", shell=True).decode().strip()
+                    if codename.lower() not in ['focal', 'jammy', 'bionic']:
+                        print(f"Codename '{codename}' não reconhecido. Usando 'jammy' como padrão.", flush=True)
+                        codename = 'jammy'
+                except subprocess.CalledProcessError:
+                    codename = 'jammy'
+
+                # Remover repositório existente
+                subprocess.run(['sudo', 'rm', '-f', '/etc/apt/sources.list.d/hashicorp.list'])
+
+                # Adicionar repositório HashiCorp com codename correto
                 subprocess.check_call([
                     'sudo', 'bash', '-c',
-                    'echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list'
+                    f'echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {codename} main" > /etc/apt/sources.list.d/hashicorp.list'
                 ])
+
                 subprocess.check_call(['sudo', 'apt-get', 'update'])
                 subprocess.check_call(['sudo', 'apt-get', 'install', 'terraform', '-y'])
-                print("Terraform instalado com sucesso.")
+                print("Terraform instalado com sucesso.", flush=True)
             except subprocess.CalledProcessError as e:
-                print(f"Falha ao instalar o Terraform: {e}")
+                print(f"Erro ao instalar o Terraform: {e}")
                 sys.exit(1)
         else:
-            print(f"Instalação automática do Terraform não suportada para {os_name}.")
+            print(f"Sistema {os_name} não suportado para instalação do Terraform.")
             sys.exit(1)
-
         
     # Lista de pacotes Python necessários
     required_packages = {
