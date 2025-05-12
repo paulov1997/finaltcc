@@ -4,81 +4,80 @@ import os
 import json
 import platform
 import shutil
-if sys.platform.startswith("linux"):
-    import distro  # Pacote para identificar a distribuição Linux
 
-#from google.cloud import resourcemanager_v3
-#from googleapiclient.discovery import build
-#from googleapiclient.errors import HttpError
-#from google.auth.exceptions import DefaultCredentialsError
 
 
 def instalar_pre_requisitos():
     """Verifica e instala os pré-requisitos necessários: PIP, Cloud CLI (gcloud) e pacotes Python."""
 
-    # Verifica se o PIP está instalado
+    os_name = platform.system()
+
+    # Verifica e instala o PIP
     print("Verificando se o PIP está instalado...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("PIP já está instalado.")
     except subprocess.CalledProcessError:
-        print("PIP não encontrado. Instalando...")
-
-        os_name = platform.system()
-
         if os_name == 'Linux':
-            distro_name = distro.id()
-            if distro_name in ['debian', 'ubuntu', 'linuxmint', 'mxlinux', 'devuan', 'deepin', 'elementary', 'zorin', 'pop','kali']:
-                print("Sistema Debian-based detectado. Instalando PIP com apt...")
-                subprocess.check_call(['sudo', 'apt', 'update'])
-                subprocess.check_call(['sudo', 'apt', 'install', 'python3-pip', '-y'])
-                print("PIP instalado com sucesso em sistemas Debian-based.")
-            else:
-                print(f"Sistema Linux {distro_name} não suportado para instalação automática do PIP.")
-                sys.exit(1)
+            print("Instalando PIP no Linux...")
+            subprocess.check_call(['sudo', 'apt', 'update'])
+            subprocess.check_call(['sudo', 'apt', 'install', 'python3-pip', '-y'])
+            print("PIP instalado com sucesso.")
+        else:
+            print(f"Instalação automática de PIP não suportada para {os_name}.")
+            sys.exit(1)
 
-
-    # Verifica se o Cloud CLI (gcloud) está instalado
+    # Verifica e instala o Cloud CLI (gcloud)
     print("Verificando se o Cloud CLI (gcloud) está instalado...")
     if shutil.which("gcloud"):
         print("Cloud CLI (gcloud) já está instalado.")
     else:
-        print("Cloud CLI (gcloud) não encontrado. Instalando...")
-
-        os_name = platform.system()
-
         if os_name == 'Linux':
-            distro_name = distro.id()
-            if distro_name in ['debian', 'ubuntu', 'linuxmint', 'mxlinux', 'devuan', 'deepin', 'elementary', 'zorin', 'pop','kali']:
-                print("Sistema Debian-based detectado. Instalando Cloud CLI com apt...")
-                try:
-                    # Atualizar repositórios e instalar dependências
-                    subprocess.check_call(['sudo', 'apt-get', 'update'])
-                    subprocess.check_call(['sudo', 'apt-get', 'install', 'apt-transport-https', 'ca-certificates', 'gnupg', 'curl', '-y'])
-
-                    # Remover keyring existente, se houver
-                    subprocess.check_call(['sudo', 'rm', '-f', '/usr/share/keyrings/cloud.google.gpg'])
-
-                    # Baixar a chave GPG e convertê-la
-                    subprocess.check_call(['curl', '-s', 'https://packages.cloud.google.com/apt/doc/apt-key.gpg', '-o', '/tmp/cloud.google.gpg'])
-                    subprocess.check_call(['sudo', 'gpg', '--batch', '--yes', '--dearmor', '-o', '/usr/share/keyrings/cloud.google.gpg', '/tmp/cloud.google.gpg'])
-
-                    # Adicionar o repositório ao sources.list
-                    subprocess.check_call([
-                        'sudo', 'bash', '-c',
-                        'echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list'
-                    ])
-
-                    # Atualizar os repositórios e instalar o Cloud CLI
-                    subprocess.check_call(['sudo', 'apt-get', 'update'])
-                    subprocess.check_call(['sudo', 'apt-get', 'install', 'google-cloud-cli', '-y'])
-                    print("Cloud CLI (gcloud) instalado com sucesso em sistemas Debian-based.")
-                except subprocess.CalledProcessError as e:
-                    print(f"Falha ao instalar o Cloud CLI (gcloud) em sistemas Debian-based. Erro: {e}")
-                    sys.exit(1)
-            else:
-                print(f"Sistema Linux {distro_name} não suportado para instalação automática do Cloud CLI.")
+            print("Instalando gcloud no Linux...")
+            try:
+                subprocess.check_call(['sudo', 'apt-get', 'update'])
+                subprocess.check_call(['sudo', 'apt-get', 'install', 'apt-transport-https', 'ca-certificates', 'gnupg', 'curl', '-y'])
+                subprocess.check_call(['sudo', 'rm', '-f', '/usr/share/keyrings/cloud.google.gpg'])
+                subprocess.check_call(['curl', '-s', 'https://packages.cloud.google.com/apt/doc/apt-key.gpg', '-o', '/tmp/cloud.google.gpg'])
+                subprocess.check_call(['sudo', 'gpg', '--batch', '--yes', '--dearmor', '-o', '/usr/share/keyrings/cloud.google.gpg', '/tmp/cloud.google.gpg'])
+                subprocess.check_call([
+                    'sudo', 'bash', '-c',
+                    'echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list'
+                ])
+                subprocess.check_call(['sudo', 'apt-get', 'update'])
+                subprocess.check_call(['sudo', 'apt-get', 'install', 'google-cloud-cli', '-y'])
+                print("Cloud CLI (gcloud) instalado com sucesso.")
+            except subprocess.CalledProcessError as e:
+                print(f"Falha ao instalar o Cloud CLI (gcloud): {e}")
                 sys.exit(1)
+        else:
+            print(f"Instalação automática do gcloud não suportada para {os_name}.")
+            sys.exit(1)
+
+    # Verifica e instala o Terraform
+    print("Verificando se o Terraform está instalado...")
+    if shutil.which("terraform"):
+        print("Terraform já está instalado.")
+    else:
+        if os_name == 'Linux':
+            print("Instalando Terraform no Linux...")
+            try:
+                subprocess.check_call(['sudo', 'apt-get', 'update'])
+                subprocess.check_call(['sudo', 'apt-get', 'install', '-y', 'software-properties-common', 'gnupg', 'curl'])
+                subprocess.check_call(['curl', '-fsSL', 'https://apt.releases.hashicorp.com/gpg', '|', 'sudo', 'gpg', '--dearmor', '-o', '/usr/share/keyrings/hashicorp-archive-keyring.gpg'])
+                subprocess.check_call([
+                    'sudo', 'bash', '-c',
+                    'echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list'
+                ])
+                subprocess.check_call(['sudo', 'apt-get', 'update'])
+                subprocess.check_call(['sudo', 'apt-get', 'install', 'terraform', '-y'])
+                print("Terraform instalado com sucesso.")
+            except subprocess.CalledProcessError as e:
+                print(f"Falha ao instalar o Terraform: {e}")
+                sys.exit(1)
+        else:
+            print(f"Instalação automática do Terraform não suportada para {os_name}.")
+            sys.exit(1)
 
         
     # Lista de pacotes Python necessários

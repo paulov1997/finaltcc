@@ -51,6 +51,11 @@ resource "google_compute_instance" "default" {
   machine_type = "e2-micro"
   zone         = var.zone
   tags         = ["ssh"]
+  
+    scheduling {
+    preemptible       = true         # ← Torna a VM preemptível
+    automatic_restart = false        # ← Importante: deve ser false
+  }
 
   boot_disk {
     initialize_params {

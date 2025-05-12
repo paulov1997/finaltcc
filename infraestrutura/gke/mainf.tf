@@ -54,16 +54,6 @@ resource "google_container_cluster" "gke_cluster" {
   remove_default_node_pool = true
   initial_node_count       = 1
  
-
-  node_config {
-    machine_type = "e2-micro"
-    disk_size_gb = 30    # Alterado de 150 GB para 100 GB
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform"
-    ]
-    tags = ["gke-node"]
-    
-  }
 }
 
 # Node Pool do Cluster GKE
